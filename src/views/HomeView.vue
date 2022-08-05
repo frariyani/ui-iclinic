@@ -1,18 +1,17 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="home-container">
+    <h1>Dashboard</h1>
+    <v-divider class="divider"></v-divider>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
-export default {
-  name: 'HomeView',
-  components: {
-    HelloWorld
+  export default {
+    name: 'HomeView'
   }
-}
 </script>
+<style scoped>
+  .divider{
+    border-color: rgb(117, 117, 117) !important;
+  }
+</style>
