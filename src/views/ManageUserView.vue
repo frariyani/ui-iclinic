@@ -82,45 +82,83 @@
                 </v-toolbar>
 
                 <v-card-text class="modal-form-wrapper">
-                    <v-text-field
-                        v-model="form.fullname"
-                        :rules="fullnameRules"
-                        name="fullname"
-                        label="Nama Lengkap"
-                        single-line solo dense outlined
-                        required
-                    ></v-text-field>
-                    <v-text-field
-                        v-model="form.username"
-                        :rules="usernameRules"
-                        name="username"
-                        label="Username"
-                        single-line solo dense outlined
-                        required
-                    ></v-text-field>
+                    <v-form
+                        ref="form"
+                        v-model="valid"
+                        lazy-validation
+                    >
+                    <v-row>
+                        <v-col cols="12" md="4" class="mb-0 pa-0">
+                            <v-subheader>Nama Lengkap</v-subheader>
+                        </v-col>
+                        <v-col cols="12" md="8" class="mt-0 pt-0">
+                            <v-text-field
+                                v-model="form.fullname"
+                                :rules="fullnameRules"
+                                name="fullname"
+                                :counter="50"
+                                label="Nama Lengkap"
+                                single-line solo dense outlined
+                                required
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
+
+                    <v-row>
+                        <v-col cols="12" md="4" class="mb-0 pa-0">
+                            <v-subheader>Username</v-subheader>
+                        </v-col>
+                        <v-col cols="12" md="8" class="mt-0 pt-0">
+                            <v-text-field
+                                v-model="form.username"
+                                :rules="usernameRules"
+                                name="username"
+                                :counter="20"
+                                label="Username"
+                                single-line solo dense outlined
+                                required
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
 
                     <div v-if="inputType == 'Tambah'">
-                        <v-text-field
-                            v-model="form.password"
-                            :rules="passwordRules"
-                            label="Password"
-                            name="password"
-                            type="password"
-                            single-line solo dense outlined
-                            required
-                        ></v-text-field>  
+                        <v-row>
+                            <v-col cols="12" md="4" class="mb-0 pa-0">
+                                <v-subheader>Password</v-subheader>
+                            </v-col>
+                            <v-col cols="12" md="8" class="mt-0 pt-0">
+                                <v-text-field
+                                    v-model="form.password"
+                                    :rules="passwordRules"
+                                    label="Password"
+                                    name="password"
+                                    type="password"
+                                    single-line solo dense outlined
+                                    required
+                                ></v-text-field>  
+                            </v-col>
+                        </v-row>
                     </div>
 
-                    <v-select
-                        v-model="form.roleID"
-                        :items="arrRole"
-                        label="Jabatan"
-                        name="role"
-                        item-text="rolename"
-                        item-value="roleID"
-                        single-line solo dense outlined
-                        required
-                    ></v-select>
+                    <v-row>
+                        <v-col cols="12" md="4" class="mb-0 pa-0">
+                            <v-subheader> Jabatan </v-subheader>
+                        </v-col>
+                        <v-col cols="12" md="8" class="mt-0 pt-0">
+                            <v-select
+                                v-model="form.roleID"
+                                :items="arrRole"
+                                label="Jabatan"
+                                :rules="roleRules"
+                                name="role"
+                                item-text="rolename"
+                                item-value="roleID"
+                                single-line solo dense outlined
+                                required
+                            ></v-select>
+                        </v-col>
+                    </v-row>
+                    </v-form>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -163,6 +201,16 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-snackbar
+          v-model="snackbar"
+          timeout="3000"
+          bottom
+          shaped
+          :color="snackbarColor"
+        >
+          {{successMessage}}
+        </v-snackbar>
     </div>
 </template>
 <script>
@@ -174,6 +222,10 @@
                 formDialog: false,
                 confirmDialog: false,
                 user: new FormData,
+                successMessage: '',
+                snackbarColor: '',
+                snackbar: false,
+                valid: true,
                 load: false,
                 arrUser: [],
                 arrRole: [],
@@ -219,7 +271,10 @@
                 ],
                 passwordRules:[
                     v => !!v || 'Password tidak boleh kosong',
-                    v => v.length > 6 || 'Password minimal terdiri dari 6 karakter'
+                    v => v.length >= 6 || 'Password minimal terdiri dari 6 karakter'
+                ],
+                roleRules: [
+                    v => !!v || 'Jabatan tidak boleh kosong',
                 ]
             }
         },
@@ -258,12 +313,16 @@
                         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                     }
                 }).then(response => {
-                    console.log(response.data.message)
+                    this.successMessage = response.data.message
+                    this.snackbarColor = '#1EB81B'
+                    this.snackbar = true
                     this.load = false
                     this.getUsers()
                     this.dismiss()
                 }).catch(error => {
-                    console.log(error.response.data.message)
+                     this.successMessage = error.response.data.message
+                    this.snackbarColor = '#E23B06'
+                    this.snackbar = true
                 })
 
             },
@@ -284,12 +343,16 @@
                         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                     }
                 }).then(response => {
-                    console.log(response.data.message)
+                    this.successMessage = response.data.message
+                    this.snackbarColor = '#1EB81B'
+                    this.snackbar = true
                     this.dismiss()
                     this.getUsers()
                     this.load = false
                 }).catch(error => {
-                    console.log(error.response.data.message)
+                     this.successMessage = error.response.data.message
+                    this.snackbarColor = '#E23B06'
+                    this.snackbar = true
                 })
             },
             deleteUser(){
@@ -300,12 +363,16 @@
                         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                     }
                 }).then(response => {
-                    console.log(response.data.message)
+                    this.successMessage = response.data.message
+                    this.snackbarColor = '#1EB81B'
+                    this.snackbar = true
                     this.load = true
                     this.dismiss()
                     this.getUsers()
                 }).catch(error => {
-                    console.log(error.response.data.message)
+                    this.successMessage = error.response.data.message
+                    this.snackbarColor = '#E23B06'
+                    this.snackbar = true
                 })
             },
 
@@ -321,6 +388,7 @@
                 this.form.fullname = '',
                 this.form.roleID = '',
                 this.form.password = ''
+                this.$refs.form.resetValidation()
             },
             editHandler(item){
                 this.inputType = 'Edit'
@@ -331,10 +399,16 @@
                 this.form.roleID = item.roleID
             },
             setForm(){
-                if(this.inputType === 'Tambah'){
-                    this.save()
+                if(this.$refs.form.validate()){
+                    if(this.inputType === 'Tambah'){
+                        this.save()
+                    }else{
+                        this.update()
+                    }
                 }else{
-                    this.update()
+                    this.successMessage = 'Harap mengisi input dengan benar'
+                    this.snackbar = true
+                    this.snackbarColor = '#E23B06'
                 }
             },
         },
@@ -367,5 +441,8 @@
 
   .modal-form-wrapper{
     margin-top: 20px;
+  }
+  .v-subheader{
+    color: black;
   }
 </style>

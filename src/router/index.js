@@ -6,6 +6,14 @@ import HomeView from '../views/HomeView.vue'
 import ManageUserView from '../views/ManageUserView.vue'
 import PatientView from '../views/PatientView.vue'
 import ManageIllnessView from '../views/ManageIllnessView.vue'
+import ManageTreatmentView from '../views/ManageTreatmentView.vue'
+import ManageMedicineView from '../views/ManageMedicineView.vue'
+import MedicalRecordView from '../views/MedicalRecordView.vue'
+import ChangePasswordView from '../views/ChangePasswordView.vue'
+import ReportDailyVisitor from '../views/ReportDailyVisitor.vue'
+import ReportDailyIncome from '../views/ReportDailyIncome.vue'
+import ReportMedicineUsage from '../views/ReportMedicineUsage.vue'
+import ReportMonthly from '../views/ReportMonthly.vue'
 
 Vue.use(VueRouter)
 
@@ -37,6 +45,46 @@ const routes = [
         path: '/datapenyakit',
         name: 'ManageIllnessView',
         component: ManageIllnessView
+      },
+      {
+        path: '/dataperawatan',
+        name: 'TreatmentView',
+        component: ManageTreatmentView
+      },
+      {
+        path: '/dataobat',
+        name: 'ManageMedicineView',
+        component: ManageMedicineView
+      },
+      {
+        path: '/datapasien/:patientID',
+        name: 'MedicalRecordView',
+        component: MedicalRecordView
+      },
+      {
+        path: 'ubahpassword',
+        name: 'ChangePasswordView',
+        component: ChangePasswordView
+      },
+      {
+        path: 'kunjunganharian',
+        name: 'ReportDailyVisitor',
+        component: ReportDailyVisitor
+      },
+      {
+        path: 'pendapatanharian',
+        name: 'ReportDailyIncome',
+        component: ReportDailyIncome
+      },
+      {
+        path: 'laporanobat',
+        name: 'ReportMedicineUsage',
+        component: ReportMedicineUsage
+      },
+      {
+        path: 'laporanbulanan',
+        name: 'ReportMonthly',
+        component: ReportMonthly
       }
     ]
   },

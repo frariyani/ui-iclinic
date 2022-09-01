@@ -49,6 +49,16 @@
             </v-col>
         </v-row>
 
+        <v-snackbar
+          v-model="snackbar"
+          timeout="3000"
+          bottom
+          shaped
+          :color="snackbarColor"
+        >
+          {{successMessage}}
+        </v-snackbar>
+
     </div>
 </template>
 <script>
@@ -58,7 +68,10 @@ export default {
     return {
       username: '',
       password: '',
-      valid: false
+      valid: false,
+      snackbar: false,
+      successMessage: '',
+      snackbarColor: '',
     }
   },
   methods: {
@@ -74,7 +87,10 @@ export default {
             name: 'HomeView'
           })
         }).catch(error => {
-          console.log(error)
+            this.successMessage = error.response.data.message
+            this.snackbarColor = '#E23B06'
+            this.snackbar = true
+            this.$refs.form.reset()
         })
       }
     }
