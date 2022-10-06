@@ -8,12 +8,17 @@ import PatientView from '../views/PatientView.vue'
 import ManageIllnessView from '../views/ManageIllnessView.vue'
 import ManageTreatmentView from '../views/ManageTreatmentView.vue'
 import ManageMedicineView from '../views/ManageMedicineView.vue'
-import MedicalRecordView from '../views/MedicalRecordView.vue'
+import MedicalRecordView from '../views/PatientMedicalRecord.vue'
+// import MedicalRecordView from '../views/MedicalRecordView.vue'
 import ChangePasswordView from '../views/ChangePasswordView.vue'
 import ReportDailyVisitor from '../views/ReportDailyVisitor.vue'
 import ReportDailyIncome from '../views/ReportDailyIncome.vue'
 import ReportMedicineUsage from '../views/ReportMedicineUsage.vue'
 import ReportMonthly from '../views/ReportMonthly.vue'
+import ManageStockView from '../views/ManageStockView.vue'
+import ManageQueue from '../views/ManageQueueView.vue'
+import ManagePrescriptionQueue from '../views/PrescriptionQueueView.vue'
+import ManageTransactionView from '../views/ManageTransactionView.vue'
 
 Vue.use(VueRouter)
 
@@ -30,6 +35,11 @@ const routes = [
         path: '/',
         name: 'HomeView',
         component: HomeView
+      },
+      {
+        path: '/manageantrian',
+        name: 'ManageQueueView',
+        component: ManageQueue
       },
       {
         path: '/datauser',
@@ -55,6 +65,11 @@ const routes = [
         path: '/dataobat',
         name: 'ManageMedicineView',
         component: ManageMedicineView
+      },
+      {
+        path: '/managestock/:medicineID',
+        name: 'ManageStockView',
+        component: ManageStockView
       },
       {
         path: '/datapasien/:patientID',
@@ -85,6 +100,16 @@ const routes = [
         path: 'laporanbulanan',
         name: 'ReportMonthly',
         component: ReportMonthly
+      },
+      {
+        path: 'antrianobat',
+        name: 'ManagePrescriptionQueue',
+        component: ManagePrescriptionQueue
+      },
+      {
+        path: 'transaksi',
+        name: 'ManageTransactionView',
+        component: ManageTransactionView
       }
     ]
   },

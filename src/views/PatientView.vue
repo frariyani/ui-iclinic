@@ -43,6 +43,7 @@
                     <v-btn
                         depressed
                         color="#11698E"
+                        v-if="userID == 2"
                         class="white--text"
                         x-small
                         style="margin-right:15px;" 
@@ -258,6 +259,7 @@
                 arrPatient: [],
                 successMessage: '',
                 snackbarColor: '',
+                userID: '',
                 snackbar: false,
                 message: '',
                 valid: true,
@@ -285,8 +287,12 @@
                         value: 'address'
                     },
                     {
-                        text: 'Usia',
+                        text: 'Tanggal Lahir',
                         value: 'birthdate'
+                    },
+                    {
+                        text: 'Usia',
+                        value: 'age'
                     },
                     {
                         text: 'Jenis Kelamin',
@@ -354,6 +360,17 @@
                     this.snackbar = true
                 })
             },
+            getAuthUser() {
+            var url = this.$api + "user/auth";
+                this.$http.get(url, {
+                    headers: {
+                        Authorization: "Bearer " + sessionStorage.getItem("token"),
+                    },
+                }).then((response) => {
+                    this.userID = response.data.dataID;
+                    console.log(this.userID)
+                });
+            },
             update(){
                 let newData = {
                     patientID: this.form.patientID,
@@ -385,7 +402,7 @@
             },
             deletePatient(){
                 let url = this.$api + 'patient/delete/'+this.form.patientID
-                this.load = true
+                this.load = false
                 this.$http.delete(url, {
                     headers:{
                         'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -415,6 +432,7 @@
                 this.form.address = item.address
                 this.form.weight = item.weight
                 this.form.birthdate = item.birthdate
+                console.log(item.birthdate)
                 this.form.gender = item.gender
                 this.formDialog = true
             },  
@@ -457,6 +475,7 @@
         },
         mounted(){
             this.getPatients()
+            this.getAuthUser()
         },
         computed:{
             indexPatients(){

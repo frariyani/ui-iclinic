@@ -86,7 +86,7 @@
             <v-list-item three-line>
               <v-list-item-content>
                 <v-list-item-title class="text-overline mb-4">
-                  3 Obat Paling Banyak Dipakai
+                  5 Obat Paling Banyak Dipakai
                 </v-list-item-title>
                 <v-list-item
                   v-for="item in medicines"

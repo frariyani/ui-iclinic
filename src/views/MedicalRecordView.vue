@@ -41,12 +41,20 @@
                     <p>: {{item.temperature}}</p>
                   </v-col>
                 </v-row>
-                <v-row>
+                <v-row class="sub-keterangan">
                   <v-col cols="12" md="2">
                     <p>Tekanan Darah</p>
                   </v-col>
                   <v-col cols="12" md="3">
                     <p>: {{item.systolic}} / {{item.diastolic}}</p>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12" md="2">
+                    <p>Total Pembayaran</p>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <p>: Rp{{item.paymentTotal}}</p>
                   </v-col>
                 </v-row>
                 <v-row class="mt-0">
@@ -131,7 +139,29 @@
                 x-small
                 style="margin-right:15px;"
                 @click="deleteHandler(item.medicalRecordID)"
-              ><v-icon small>mdi-delete</v-icon></v-btn>       
+              ><v-icon small>mdi-delete</v-icon></v-btn>
+              <v-btn
+                depressed
+                color="#1EB81B"
+                v-if="item.isDone == 0"
+                class="white--text"
+                x-small
+                style="margin-right:15px;"
+                @click="editHandler(item)"
+              >
+                <v-icon small>mdi-pencil</v-icon>
+              </v-btn>   
+              <v-btn
+                depressed
+                color="#5F9EA0"
+                class="white--text"
+                v-if="item.isDone == 0"
+                x-small
+                style="margin-right:15px;"
+                @click="isDoneHandler(item.medicalRecordID)"
+              >
+                <v-icon small>mdi-check-circle-outline</v-icon>
+              </v-btn>    
             </template>
           </v-data-table>
         </v-card>
@@ -290,6 +320,18 @@
                       <v-col cols="12" md="4" class="mt-0 pt-0">
                         <v-text-field
                           v-model="i.quantity"
+                          v-if="inputType =='Tambah'"
+                          name="quantity"
+                          label="Jumlah"
+                          :rules="quantityRules"
+                          :suffix="i.unit"
+                          :error-messages="i.message"
+                          single-line solo dense outlined
+                          required
+                        ></v-text-field>
+                        <v-text-field
+                          v-model="i.pivot.quantity"
+                          v-if="inputType =='Edit'"
                           name="quantity"
                           label="Jumlah"
                           :rules="quantityRules"
@@ -302,6 +344,16 @@
                       <v-col cols="12" md="6" class="mt-0 pt-0">
                         <v-text-field
                           v-model="i.dosage"
+                          v-if="inputType =='Tambah'"
+                          name="dosage"
+                          label="Dosis"
+                          :rules="dosageRules"
+                          single-line solo dense outlined
+                          required
+                        ></v-text-field>
+                        <v-text-field
+                          v-model="i.pivot.dosage"
+                          v-if="inputType =='Edit'"
                           name="dosage"
                           label="Dosis"
                           :rules="dosageRules"
@@ -321,7 +373,7 @@
                 <v-btn color="#E23B06" text @click="dismiss">
                   Batal
                 </v-btn>
-                <v-btn color="#11698E" text @click="save">
+                <v-btn color="#11698E" text @click="formHandler()">
                   Simpan
                 </v-btn>
             </v-card-actions>
@@ -351,7 +403,7 @@
             <v-btn color="#E23B06" text @click="dismiss">
               Tidak
             </v-btn>
-            <v-btn color="#11698E" text @click="deleteMedicalRecord">
+            <v-btn color="#11698E" text @click="confirmHandler()">
               Ya
             </v-btn>
           </v-card-actions>
@@ -470,7 +522,6 @@ export default {
     },
     methods:{
       save(){
-        if(this.$refs.form.validate()){
           this.medicalRecord.append('date', this.form.date)
           this.medicalRecord.append('temperature', this.form.temperature)
           this.medicalRecord.append('systolic', this.form.systolic)
@@ -498,15 +549,42 @@ export default {
             this.snackbarColor = '#E23B06'
             this.snackbar = true
           })
-        }else{
-          this.successMessage = 'Harap mengisi input dengan benar'
-          this.snackbar = true
-          this.snackbarColor = '#E23B06'
+      },
+      update(){
+        let newData = {
+          date: this.form.date,
+          temperature: this.form.temperature,
+          systolic: this.form.systolic,
+          diastolic: this.form.diastolic,
+          medicalRecordID: this.form.medicalRecordID,
+          illnessess: this.illnessess,
+          treatments: this.treatments,
+          prescriptions: this.medicines
         }
+
+        // console.log(newData)
+        let url = this.$api + 'medicalrecord/update'
+        this.load = true
+        this.$http.post(url, newData, {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        }).then(response => {
+          this.successMessage = response.data.message
+          this.snackbarColor = '#1EB81B'
+          this.snackbar = true
+          this.dismiss()
+          this.getMedicalRecord()
+          this.load = false
+        }).catch(error => {
+          this.successMessage = error.response.data.message
+          this.snackbarColor = '#E23B06'
+          this.snackbar = true
+        })
       },
       deleteMedicalRecord(){
         let url = this.$api + 'medicalrecord/delete/'+this.form.medicalRecordID
-        this.load = true
+        this.load = false
         this.$http.delete(url, {
           headers: {
             'Authorization': 'Bearer ' + sessionStorage.getItem('token')
@@ -515,9 +593,9 @@ export default {
           this.successMessage = response.data.message
           this.snackbarColor = '#1EB81B'
           this.snackbar = true
-          this.load = true
           this.dismiss()
           this.getMedicalRecord()
+          this.load = true
         }).catch(error => {
           this.snackbarColor = '#E23B06'
           this.successMessage = error.data.message
@@ -584,6 +662,26 @@ export default {
           this.patientData.usia = parseInt(this.currentDate) - parseInt(response.data.data.birthdate)
         })
       },
+      setIsDone(){
+        let url = this.$api + 'medicalrecord/isdone/'+this.form.medicalRecordID
+        this.load = true
+        this.$http.get(url, {
+          headers: {
+            'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+          }
+        }).then(response => {
+          this.successMessage = response.data.message
+          this.snackbarColor = '#1EB81B'
+          this.snackbar = true
+          this.dismiss()
+          this.getMedicalRecord()
+          this.load = false
+        }).catch(error => {
+          this.snackbarColor = '#E23B06'
+          this.successMessage = error.data.message
+          this.snackbar = true
+        })
+      },
       //UI LOGIC
       dismiss(){
         this.formDialog = false
@@ -604,6 +702,26 @@ export default {
       selectedMedicine(){
         this.prescriptions = this.medicines
       },
+      editHandler(item){
+        this.inputType = 'Edit'
+        this.form.date = item.date
+        this.form.temperature = item.temperature
+        this.form.systolic = item.systolic
+        this.form.diastolic = item.diastolic
+        this.form.patientID = item.patientID
+        this.form.doctorID = item.doctorID
+        this.form.medicalRecordID = item.medicalRecordID
+        this.illnessess = item.illnessess
+        this.treatments = item.treatments
+        this.medicines = item.prescriptions
+        this.formDialog = true
+      },
+      isDoneHandler(id){
+        this.confirmDialog = true
+        this.confirmType = 'Verifikasi'
+        this.confirmationMessage = 'Apakah anda yakin akan melakukan verifikasi pada rekam medis ini?'
+        this.form.medicalRecordID = id
+      },
       deleteHandler(id){
         this.form.medicalRecordID = id
         this.confirmationMessage = 'Apakah anda yakin akan menghapus rekam medis ini?'
@@ -616,6 +734,27 @@ export default {
         }else{
           item.message = ''
         }
+      },
+      confirmHandler(){
+        if(this.confirmType == 'Hapus'){
+          this.deleteMedicalRecord()
+        }else{
+          this.setIsDone()
+        }
+      },
+      formHandler(){
+        if(this.$refs.form.validate()){
+          if(this.inputType == 'Tambah'){
+            this.save()
+          }else{
+            this.update()
+          }
+        }else{
+          this.successMessage = 'Harap mengisi input dengan benar'
+          this.snackbar = true
+          this.snackbarColor = '#E23B06'
+        }
+
       }
     },
     mounted(){
@@ -630,7 +769,7 @@ export default {
       "medicines": {
         deep: true,
         handler: function(after){
-          // console.log('watched: '+JSON.stringify(after))
+          console.log('watched: '+JSON.stringify(after))
 
           for(let index = 0; index < after.length; index++){
             const item = after[index]

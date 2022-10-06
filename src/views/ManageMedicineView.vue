@@ -58,13 +58,13 @@
 
                     <v-btn
                         depressed
-                        color="blue"
+                        color="#11698E"
                         class="white--text"
                         x-small
                         style="margin-right:15px;"
-                        @click="addStockHandler(item)"
+                        @click="toManageStock(item.medicineID)"
                     >
-                        <v-icon small>mdi-package-variant-closed-plus</v-icon>
+                        <v-icon small>mdi-table-arrow-up</v-icon>
                     </v-btn>
                 </template>
             </v-data-table>
@@ -203,45 +203,6 @@
             </v-card>
         </v-dialog>
 
-        <v-dialog
-            v-model="addStockDialog"
-            persistent
-            max-width="600px"
-        >
-            <v-card>
-                <v-toolbar color="#CCF2F4" height="50" flat>
-                    <v-toolbar-title>
-                        Tambah Stok
-                    </v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn icon @click="dismiss">
-                        <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                </v-toolbar>
-                <v-card-text class="modal-form-wrapper">
-                    <h3>Masukkan stok tambahan: </h3>
-                    <v-text-field
-                        v-model="form.additionalStock"
-                        name="additionalStock"
-                        :rules="supplyRules"
-                        type="number"
-                        label="Jumlah Stok Tambahan"
-                        single-line solo dense outlined
-                        required
-                    ></v-text-field>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="#E23B06" text @click="dismiss">
-                        Batal
-                    </v-btn>
-                    <v-btn color="#11698E" text @click="addStock">
-                        Tambah
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
         <v-snackbar
           v-model="snackbar"
           timeout="3000"
@@ -260,7 +221,6 @@ export default {
             search: null,
             formDialog: false,
             confirmDialog: false,
-            addStockDialog: false,
             inputType: 'Tambah',
             successMessage: '',
             snackbarColor: '',
@@ -268,6 +228,7 @@ export default {
             valid: true,
             arrMedicine: [],
             load: false,
+            historyStock: [],
             medicine: new FormData,
             form: {
                 medicineID: '',
@@ -275,7 +236,8 @@ export default {
                 unit: '',
                 supply: '',
                 pricePerUnit: '',
-                additionalStock: ''
+                additionalStock: '',
+                date: ''
             },
             units: [
                 {
@@ -343,7 +305,10 @@ export default {
                 v => !!v || 'Stok obat tidak boleh kosong',
                 v => v >= 0 || 'Stok obat tidak boleh kurang dari 0',
                 v => v < 999999 || 'Stok obat terlalu banyak'
-            ]
+            ],
+            dateRules: [
+              v => !!v || 'Tanggal tidak boleh kosong'
+            ],
         }
     },
     methods: {
@@ -429,37 +394,10 @@ export default {
                 this.snackbar = true
             })
         },
-        addStock(){
-            let newData = {
-                medicineID: this.form.medicineID,
-                additionalStock: this.form.additionalStock
-            }
-
-            var url = this.$api + 'medicine/supply/add'
-            this.load = true
-            this.$http.post(url, newData, {
-                headers:{
-                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
-                }
-            }).then(response => {
-                this.successMessage = response.data.message
-                this.snackbarColor = '#1EB81B'
-                this.snackbar = true
-                this.load = false
-                this.dismiss()
-                this.getMedicine()
-            }).catch(error => {
-                this.successMessage = error.response.data.message
-                this.snackbarColor = '#E23B06'
-                this.snackbar = true
-            })
-        },
-
         //UI LOGIC
         dismiss(){
             this.confirmDialog = false
             this.formDialog = false
-            this.addStockDialog = false
             this.form.medicine = ''
             this.form.medicineName = ''
             this.form.unit = ''
@@ -479,9 +417,8 @@ export default {
 
             this.formDialog = true
         },
-        addStockHandler(item){
-            this.form.medicineID = item.medicineID
-            this.addStockDialog = true
+        toManageStock(id){
+            this.$router.push('/managestock/'+id)
         },
         formHandler(){
             if(this.$refs.form.validate()){

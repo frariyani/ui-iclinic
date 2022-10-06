@@ -31,7 +31,7 @@
       </v-layout>
 
       <v-list flat>
-        <v-list-group :value="true"> 
+        <v-list-group> 
           <template v-slot:activator>
             <v-list-item-content>
               <v-list-item-title class="menu-title"
@@ -52,7 +52,7 @@
           </v-list-item>
         </v-list-group>
 
-        <v-list-group>
+        <v-list-group v-if="menusMaster.length != 0">
           <template v-slot:activator>
             <v-list-item-content>
               <v-list-item-title class="menu-title"
@@ -73,7 +73,7 @@
           </v-list-item>
         </v-list-group>
 
-        <v-list-group>
+        <v-list-group v-if="menusManagement.length != 0">
           <template v-slot:activator>
             <v-list-item-content>
               <v-list-item-title class="menu-title"
@@ -81,7 +81,7 @@
               >
             </v-list-item-content>
           </template>
-          <v-list-item-group v-model="selectedItem" color="primary">
+          <v-list-item-group>
           <v-list-item
             v-for="item in menusManagement"
             :key="item.title"
@@ -96,7 +96,7 @@
           </v-list-item-group>
         </v-list-group>
 
-        <v-list-group>
+        <v-list-group v-if="menusReport.length != 0">
           <template v-slot:activator>
             <v-list-item-content>
               <v-list-item-title class="menu-title"
@@ -138,8 +138,7 @@ export default {
       menusMaster: [],
       menusManagement: [],
       menusReport: [],
-      username: "",
-      selectedItem: 1,
+      username: ""
     };
   },
   methods: {
